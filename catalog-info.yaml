@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage-portal
+  title: Backstage Developer Portal
+  description: Enterprise Internal Developer Platform (IDP) unified developer control plane and GitOps orchestrator.
+  annotations:
+    backstage.io/managed-by-location: url:https://github.com/SDB-DevOps/backstage-portal/blob/main/catalog-info.yaml
+    github.com/project-slug: SDB-DevOps/backstage-portal
+    argocd/app-name: backstage
+spec:
+  type: service
+  lifecycle: production
+  owner: group:devops-platform
+  system: cloud-governance
+  providesApis:
+    - backstage-scaffolder-api
+    - backstage-catalog-api

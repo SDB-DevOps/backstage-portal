@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-app-config
+  namespace: backstage
+data:
+  app-config.local.yaml: |
+    app:
+      title: "SDB Enterprise Developer Portal"
+      baseUrl: "http://34.69.136.108:30007"
+    organization:
+      name: "SDB Enterprise Platform Engineering"
+    backend:
+      baseUrl: "http://34.69.136.108:30007"
+      listen:
+        port: 7007
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+      cors:
+        origin: "http://34.69.136.108:30007"
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+      database:
+        client: pg
+        connection:
+          host: backstage-postgres
+          port: 5432
+          user: backstage
+          password: backstage123
+          database: backstage_plugin_catalog
+    catalog:
+      locations:
+        - type: url
+          target: https://github.com/SDB-DevOps/crossplane-infra/blob/main/templates/gcp-storage/template.yaml
+          rules:
+            - allow: [Template]
+        - type: url
+          target: https://github.com/SDB-DevOps/crossplane-infra/blob/main/templates/all-templates.yaml
+          rules:
+            - allow: [Location]
+        - type: url
+          target: https://github.com/SDB-DevOps/backstage-portal/blob/main/catalog-info.yaml
+          rules:
+            - allow: [Component]

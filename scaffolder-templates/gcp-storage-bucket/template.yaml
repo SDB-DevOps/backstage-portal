@@ -1,0 +1,80 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: gcp-storage-claim-template
+  title: GCP Cloud Storage Self-Service Bucket
+  description: Create a GCP Cloud Storage Bucket via Crossplane Claim in the target namespace and publish to GitOps repo.
+  tags:
+    - gcp
+    - storage
+    - crossplane
+    - gitops
+spec:
+  owner: group:devops-platform
+  type: service
+
+  parameters:
+    - title: Bucket & Claim Configuration
+      required:
+        - name
+        - namespace
+        - storageClass
+        - location
+      properties:
+        name:
+          title: Bucket / Claim Name
+          type: string
+          description: Unique identifier for the bucket claim (e.g. order-assets-bucket)
+          ui:autofocus: true
+        namespace:
+          title: Target Namespace
+          type: string
+          default: default
+          description: Kubernetes namespace where the Claim will reside
+        storageClass:
+          title: Storage Class
+          type: string
+          default: STANDARD
+          enum:
+            - STANDARD
+            - NEARLINE
+            - COLDLINE
+            - ARCHIVE
+        location:
+          title: Bucket Location
+          type: string
+          default: US
+          enum:
+            - US
+            - ASIA
+            - EU
+            - us-central1
+            - asia-east1
+
+  steps:
+    - id: template
+      name: Render Manifest Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          storageClass: ${{ parameters.storageClass }}
+          location: ${{ parameters.location }}
+
+    - id: publish
+      name: Publish to GitOps Repository
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: 'Auto-generated GCP Cloud Storage Claim for ${{ parameters.name }}'
+        repoUrl: github.com?owner=SDB-DevOps&repo=crossplane-infra
+        targetPath: claims/${{ parameters.namespace }}
+        defaultBranch: main
+        gitCommitMessage: 'feat(backstage): add Crossplane GCP Storage claim for ${{ parameters.name }}'
+
+  output:
+    links:
+      - title: View GitOps Repository
+        url: https://github.com/SDB-DevOps/crossplane-infra/tree/main/claims/${{ parameters.namespace }}

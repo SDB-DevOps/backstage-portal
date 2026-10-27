@@ -1,0 +1,31 @@
+app:
+  baseUrl: http://34.69.136.108:30007
+
+backend:
+  baseUrl: http://34.69.136.108:30007
+  listen:
+    port: 7007
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+      database: ${POSTGRES_DATABASE}
+      ssl: false
+
+catalog:
+  locations:
+    - type: url
+      target: https://github.com/SDB-DevOps/crossplane-infra/blob/main/templates/gcp-storage/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/SDB-DevOps/crossplane-infra/blob/main/templates/all-templates.yaml
+      rules:
+        - allow: [Location]
+    - type: url
+      target: https://github.com/SDB-DevOps/backstage-portal/blob/main/catalog-info.yaml
+      rules:
+        - allow: [Component]

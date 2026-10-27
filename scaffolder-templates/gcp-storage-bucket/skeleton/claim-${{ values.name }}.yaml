@@ -1,0 +1,12 @@
+apiVersion: gcp.custom.org/v1alpha1
+kind: AppCloudStorage
+metadata:
+  name: ${{ values.name }}
+  namespace: ${{ values.namespace }}
+  labels:
+    app.kubernetes.io/managed-by: backstage
+    app.kubernetes.io/created-by: scaffolder
+spec:
+  parameters:
+    storageClass: ${{ values.storageClass }}
+    location: ${{ values.location }}

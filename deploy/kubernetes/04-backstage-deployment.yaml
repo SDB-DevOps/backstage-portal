@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage
+  namespace: backstage
+  labels:
+    app.kubernetes.io/name: backstage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backstage
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: backstage
+    spec:
+      serviceAccountName: backstage
+      containers:
+        - name: backstage
+          image: quay.io/rhdh/rhdh-hub-rhel9:1.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 7007
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-creds
+                  key: token
+                  optional: true
+            - name: APP_CONFIG_app_baseUrl
+              value: "http://34.69.136.108:30007"
+            - name: APP_CONFIG_backend_baseUrl
+              value: "http://34.69.136.108:30007"
+            - name: APP_CONFIG_backend_cors_origin
+              value: "http://34.69.136.108:30007"
+          args:
+            - "--config"
+            - "app-config.yaml"
+            - "--config"
+            - "/opt/app-root/src/config/app-config.local.yaml"
+          volumeMounts:
+            - name: app-config-volume
+              mountPath: /opt/app-root/src/config
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1536Mi
+      volumes:
+        - name: app-config-volume
+          configMap:
+            name: backstage-app-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  type: NodePort
+  ports:
+    - port: 7007
+      targetPort: 7007
+      nodePort: 30007
+      name: http
+  selector:
+    app.kubernetes.io/name: backstage

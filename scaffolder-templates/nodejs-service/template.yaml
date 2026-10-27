@@ -1,0 +1,61 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: nodejs-microservice-template
+  title: Node.js Cloud-Native Microservice
+  description: Scaffolds a production-ready Node.js Express microservice with Dockerfile, Kubernetes manifests, and automatic ArgoCD GitOps tracking.
+  tags:
+    - nodejs
+    - express
+    - microservice
+    - argocd
+    - gitops
+spec:
+  owner: group:devops-platform
+  type: service
+
+  parameters:
+    - title: Microservice Metadata
+      required:
+        - name
+        - description
+        - port
+      properties:
+        name:
+          title: Service Name
+          type: string
+          description: Lowercase name of the microservice (e.g. payment-service)
+        description:
+          title: Service Description
+          type: string
+          default: Production microservice
+        port:
+          title: Service HTTP Port
+          type: number
+          default: 8080
+
+  steps:
+    - id: template
+      name: Render Service Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          port: ${{ parameters.port }}
+
+    - id: publish
+      name: Publish Repository to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: ${{ parameters.description }}
+        repoUrl: github.com?owner=SDB-DevOps&repo=${{ parameters.name }}
+        defaultBranch: main
+        gitCommitMessage: 'feat: initialize microservice from Backstage template'
+
+  output:
+    links:
+      - title: View New Microservice Repository
+        url: https://github.com/SDB-DevOps/${{ parameters.name }}
